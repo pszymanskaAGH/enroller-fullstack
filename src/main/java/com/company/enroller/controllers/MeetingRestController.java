@@ -53,7 +53,7 @@ public class MeetingRestController {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
         meetingService.delete(meeting);
-        return new ResponseEntity<Meeting>(meeting, HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(meeting, HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
@@ -75,5 +75,37 @@ public class MeetingRestController {
         meeting.setId(currentMeeting.getId());
         meetingService.update(meeting);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "{id}/participants", method = RequestMethod.POST)
+    public ResponseEntity<?> addParticipant(@PathVariable("id") long id, @RequestBody Map<String, String> json) {
+
+        Meeting currentMeeting = meetingService.findById(id);
+        if (currentMeeting == null) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        String login = json.get("login");
+        if (login == null) {
+            return new ResponseEntity<>("Unable to find participant login in the request body",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        Participant participantToAdd = participantService.findByLogin(login);
+        currentMeeting.addParticipant(participantToAdd);
+        meetingService.update(currentMeeting);
+
+        return new ResponseEntity<>(currentMeeting.getParticipants(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "{id}/participants/{login}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> removeParticipant(@PathVariable("id") long id, @PathVariable("login") String login) {
+        Meeting meeting = meetingService.findById(id);
+        if (meeting == null) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        Participant participant = participantService.findByLogin(login);
+        meeting.removeParticipant(participant);
+        meetingService.update(meeting);
+        return new ResponseEntity<>(meeting.getParticipants(), HttpStatus.OK);
     }
 }

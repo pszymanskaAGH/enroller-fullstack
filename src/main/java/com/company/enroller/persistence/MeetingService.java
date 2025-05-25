@@ -13,9 +13,11 @@ import java.util.Collection;
 public class MeetingService {
 
     Session session;
+    DatabaseConnector connector;
 
     public MeetingService() {
-        session = DatabaseConnector.getInstance().getSession();
+        connector = DatabaseConnector.getInstance();
+        session = connector.getSession();
     }
 
     public Collection<Meeting> getAll() {
@@ -70,4 +72,20 @@ public class MeetingService {
         return query.list().size() != 0;
     }
 
+    //ok
+    public void addParticipantToMeeting(Participant participant, Meeting meeting) {
+        meeting.getParticipants().add(participant);
+        Transaction tx = connector.getSession().beginTransaction();
+        connector.getSession().save(meeting);
+        tx.commit();
+    }
+
+    //ok
+    public void removeParticipantFromMeeting(Participant participant, Meeting meeting) {
+        Collection<Participant> participants = meeting.getParticipants();
+        participants.remove(participant);
+        Transaction tx = connector.getSession().beginTransaction();
+        connector.getSession().update(meeting);
+        tx.commit();
+    }
 }

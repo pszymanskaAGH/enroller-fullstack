@@ -16,6 +16,7 @@ export default function MeetingsPage({username}) {
         }
     }
 
+
     async function handleNewMeeting(meeting) {
         const response = await fetch('/api/meetings', {
             method: 'POST',
@@ -28,6 +29,26 @@ export default function MeetingsPage({username}) {
             setMeetings(nextMeetings);
             setAddingNewMeeting(false);
         }
+    }
+
+    function handleSignIn(meeting) {
+        const nextMeetings = meetings.map(m => {
+            if (m === meeting) {
+                m.participants = [...m.participants, username];
+            }
+            return m;
+        });
+        setMeetings(nextMeetings);
+    }
+
+    function handleSignOut(meeting) {
+        const nextMeetings = meetings.map(m => {
+            if (m === meeting) {
+                m.participants = m.participants.filter(u => u !== username);
+            }
+            return m;
+        });
+        setMeetings(nextMeetings);
     }
 
     useEffect(() => {
@@ -52,7 +73,9 @@ export default function MeetingsPage({username}) {
 
             {meetings.length > 0 &&
                 <MeetingsList meetings={meetings} username={username}
-                              onDelete={handleDeleteMeeting}/>
+                              onDelete={handleDeleteMeeting}
+                              signIn={handleSignIn}
+                              signOut={handleSignOut}/>
             }
         </div>
     )

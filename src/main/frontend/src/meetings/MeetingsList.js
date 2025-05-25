@@ -1,11 +1,14 @@
-export default function MeetingsList({meetings, onDelete}) {
-    let pageContent = <div>
+import ButtonSaveOrDeleteUserToMeeting from "./ButtonSaveOrDeleteUserToMeeting";
+
+export default function MeetingsList({meetings, username, onDelete, signIn, signOut}) {
+    return (
         <table>
             <thead>
             <tr>
                 <th>Nazwa spotkania</th>
                 <th>Opis</th>
-                <th>Akcja</th>
+                <th>Uczestnicy</th>
+                <th>Akcje</th>
             </tr>
             </thead>
             <tbody>
@@ -13,14 +16,23 @@ export default function MeetingsList({meetings, onDelete}) {
                 meetings.map((meeting, index) => <tr key={index}>
                     <td>{meeting.title}</td>
                     <td>{meeting.description}</td>
-                    <td><button onClick={() => onDelete(meeting)}>Usuń</button></td>
+                    <td>
+                        {
+                            meeting.participants.length > 0
+                                ? <ul>{meeting.participants.map(p => <li key={p}>{p}</li>)}</ul>
+                                : <em>Brak uczestników</em>
+                        }
+                    </td>
+                    <td>
+                        <ButtonSaveOrDeleteUserToMeeting meeting={meeting}
+                                                         username={username}
+                                                         onDelete={() => onDelete(meeting)}
+                                                         signIn={() => signIn(meeting)}
+                                                         signOut={() => signOut(meeting)}/>
+                    </td>
                 </tr>)
             }
             </tbody>
         </table>
-    </div>
-
-    return (
-        <div>{pageContent}</div>
     );
 }
